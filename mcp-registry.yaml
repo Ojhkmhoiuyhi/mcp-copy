@@ -1,0 +1,68 @@
+# Analysis
+
+**Language and Runtime Environment:**  
+Node.js (requires Node.js 18+). The repository contains a `package.json` with `"type": "module"`, source code must be built (`npm run build`), and the main entry point for CLI is `cli.js`. There is _no evidence the package is published on npm as `browser-mcp`_, so this is a **local/unpublished Node.js project**.
+
+**Dependencies and Configuration:**  
+Critical configuration is the `ANCHOR_API_KEY` (required), which must be passed as an environment variable (see both README and CLI error message). Optional parameters are `--host` and `--port` (but not strictly required; defaults are used if omitted).
+
+**Build Requirements:**  
+- Install dependencies: `npm install`
+- Build: `npm run build`
+
+**Entry Point:**  
+- Execute with: `node cli.js`
+- So the run command, after build, should be: `node cli.js`
+
+# Assumptions
+
+- **Not published on npm**; so must be built and executed locally.
+- Build output (for `.js` files) lands in project root or `lib/`, but README and "bin" point to `cli.js` (not in a `dist/` or `lib/` directory). So `cli.js` is directly executable after build.
+- Require only `ANCHOR_API_KEY` as configuration.
+- No additional configuration fields are strictly required. Host and port can be added as advanced options if needed by the user.
+- Bin entry is `cli.js` (not in a subfolder).
+
+# mcp-registry.yaml
+
+```yaml
+config_schema:
+  type: object
+  required:
+    - anchor_api_key
+  properties:
+    anchor_api_key:
+      type: string
+      description: Anchor Browser API Key (get from https://anchorbrowser.io)
+      format: password
+
+server_name: browser-mcp
+command: npx
+args:
+  - -y
+  - npm
+  - install
+  - '&&'
+  - npm
+  - run
+  - build
+  - '&&'
+  - node
+  - cli.js
+env:
+  - name: ANCHOR_API_KEY
+    value: config.anchor_api_key
+
+description: |
+  Model Context Protocol server for remote browser automation via Anchor Browser. Provides LLMs with safe, scalable cloud browser capabilities including proxy rotation, stealth, and full Playwright/MCP toolset. Requires an Anchor Browser API key.
+owner: Guy Ben Simhon
+license: Apache-2.0
+package: browser-mcp
+vendor: Anchor Browser
+```
+
+# Usage Notes
+
+- **Local build required:** The package is not published on npm and must be built locally each time. The registry command does all steps: install, build, and then execution with provided API key.
+- **Configuration:** You must provide a valid Anchor Browser API key.
+- **No host/port needed for typical use.** Add as advanced options if you wish (can be appended to args via UI or future schema).
+- **For different entry points or production Docker use, you may specify additional args, e.g. `--port 8931 --host 0.0.0.0`.
